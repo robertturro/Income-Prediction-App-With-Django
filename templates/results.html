@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block main %}
+    <div class="container pt-5">
+        <div class="row">
+
+        <h1>Prediction Results</h1>
+
+            <table class="table">
+                <thead>
+                <tr>
+                <th scope="col">#</th>
+                <th scope="col">age</th>
+                <th scope="col">workclass</th>
+                <th scope="col">education_years</th>
+                <th scope="col">marital_status</th>
+                <th scope="col">relationship</th>
+                <th scope="col">race</th>
+                <th scope="col">sex</th>
+                <th scope="col">hours_per_week</th>
+                <th scope="col">result</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for data in dataset %}
+                    <tr>
+                    <th scope="row">{{ data.id }}</th>
+                    <td>{{ data.age }}</td>
+                    <td>{{ data.workclass }}</td>
+                    <td>{{ data.education_years }}</td>
+                    <td>{{ data.marital_status }}</td>
+                    <td>{{ data.relationship }}</td>
+                    <td>{{ data.race }}</td>
+                    <td>{{ data.sex }}</td>
+                    <td>{{ data.hours_per_week }}</td>
+                    <td>{{ data.result }}</td>
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
