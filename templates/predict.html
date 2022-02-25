@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block main %}
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Prediction Results</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h5>Prediction Input:</h5>
+                <div>Age: <span id="a"></span></div>
+                <div>Workclass: <span id="wc"></span></div>
+                <div>Education Years: <span id="ey"></span></div>
+                <div>Marital-Status: <span id="ms"></span></div>
+                <div>Relationship: <span id="re"></span></div>
+                <div>Race: <span id="ra"></span></div>
+                <div>Sex: <span id="s"></span></div>
+                <div>Hours Per Week: <span id="hpw"></span></div>
+                <h5 class="pt-3">Prediction Classification:</h5>
+                <div id="prediction"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a class="btn btn-primary" href="/results" role="button">View DB</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container pt-5">
+    <div class="row justify-content-md-center">
+        <div class="col-md-4">
+            <h1>Income Prediction</h1>
+            <form action="" id="post-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="age">Age</label>
+                    <input type="number" step="1" class="form-control" id="age" placeholder="" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="education_years">Education Years</label>
+                    <input type="number" step="0.5" class="form-control" id="education_years" placeholder="" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="hours_per_week">Hours Per Week</label>
+                    <input type="number" step="0.1" class="form-control" id="hours_per_week" placeholder="" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="workclass">Workclass</label>
+                    <select class="form-control" id="workclass" required>
+                        <option value="Private" >Private</option>
+                        <option value="Self-emp-not-inc">Self-emp-not-inc</option>
+                        <option value="Local-gov">Local-gov</option>
+                        <option value="State-gov">State-gov</option>
+                        <option value="Federal-gov">Federal-gov</option>
+                        <option value="Without-pay">Without-Pay</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="marital_status">Marital Status</label>
+                    <select class="form-control" id="marital_status" required>
+                        <option value="Married-civ-spouse">Married-civ-spouse</option>
+                        <option value="Never-married">Never-married</option>
+                        <option value="Divorced">Divorced</option>
+                        <option value="Separated">Separated</option>
+                        <option value="Widowed">Widowed</option>
+                        <option value="Married-spouse-absent">Married-spouse-absent</option>
+                        <option value="Married-AF-spouse">Married-AF-spouse</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="relationship">Relationship</label>
+                    <select class="form-control" id="relationship" required> 
+                        <option value="Husband" >Husband</option>
+                        <option value="Not-in-family">Not-in-family</option>
+                        <option value="Own-child">Own-child</option>
+                        <option value="Unmarried">Unmarried</option>
+                        <option value="Wife">Wife</option>
+                        <option value="Other-relative">Other-relative</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="race">Race</label>
+                    <select class="form-control" id="race" required>
+                        <option value="White">White</option>
+                        <option value="Black" >Black</option>
+                        <option value="Asian-Pac-Islander">Asian-Pac-Islander</option>
+                        <option value="Amer-Indian-Eskimo">Amer-Indian-Eskimo</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="sex">Sex</label>
+                    <select class="form-control" id="sex" required>
+                        <option value="Male" >Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+               
+                <button type="submit" value="Submit" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).on('submit', '#post-form',function(e){
+        e.preventDefault();
+        $.ajax({
+            type:'POST',
+            url:'{% url "predict:submit_prediction" %}',
+            data:{
+                age:$('#age').val(),
+                workclass:$('#workclass').val(),
+                education_years:$('#education_years').val(),
+                marital_status:$('#marital_status').val(),
+                relationship:$('#relationship').val(),
+                race:$('#race').val(),
+                sex:$('#sex').val(),
+                hours_per_week:$('#hours_per_week').val(),
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+                action: 'post'
+            },
+            success:function(json) {
+                document.forms["post-form"].reset();
+                document.getElementById("prediction").innerHTML = json['result']
+                document.getElementById("a").innerHTML = json['age']
+                document.getElementById("wc").innerHTML = json['workclass']
+                document.getElementById("ey").innerHTML = json['education_years']
+                document.getElementById("ms").innerHTML = json['marital_status']
+                document.getElementById("re").innerHTML = json['relationship']
+                document.getElementById("ra").innerHTML = json['race']
+                document.getElementById("s").innerHTML = json['sex']
+                document.getElementById("hpw").innerHTML = json['hours_per_week']
+            },
+            error : function(xhr,errmsg,err) {
+
+            }
+        });
+    })
+</script>
+
+{% endblock %}
